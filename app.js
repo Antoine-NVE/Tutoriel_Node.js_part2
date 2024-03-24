@@ -1,43 +1,20 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
-const validator = require('validator');
+const { connectDB } = require('./src/services/mongoose');
+const User = require('./src/models/user');
+const express = require('express');
+const app = express();
+const port = process.env.port || 3000;
 
-main().catch((err) => console.log(err));
+connectDB().catch((err) => console.log(err));
 
-async function main() {
-    await mongoose.connect(process.env.MONGO_URL);
+app.use(express.json());
 
-    const User = mongoose.model('User', {
-        email: {
-            type: String,
-            required: true,
-            validate(v) {
-                if (!validator.isEmail(v)) throw new Error('E-mail non valide');
-            },
-        },
-        password: {
-            type: String,
-            required: true,
-            validate(v) {
-                if (!validator.isLength(v, { min: 4, max: 20 }))
-                    throw new Error(
-                        'Le mot de passe doit faire entre 4 et 20 caractères'
-                    );
-            },
-        },
-    });
+app.post('/todos', async (req, res, next) => {
+    const user = new User(req.body);
+    const saveUser = await user.save();
+    res.send(saveUser);
+});
 
-    const firstPerson = new User({
-        email: 'antoine@gmail.com',
-        password: 'password',
-    });
-
-    const secondPerson = new User({
-        email: 'test@gmail.com',
-        password: 'test',
-    });
-
-    const firstSave = await firstPerson.save();
-    const secondSave = await secondPerson.save();
-    console.log(firstSave, secondSave);
-}
+app.listen(port, () => {
+    console.log('Le serveur est lancé à http://localhost:' + port);
+});
