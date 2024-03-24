@@ -9,10 +9,35 @@ connectDB().catch((err) => console.log(err));
 
 app.use(express.json());
 
-app.post('/todos', async (req, res, next) => {
+app.post('/users', async (req, res, next) => {
     const user = new User(req.body);
-    const saveUser = await user.save();
-    res.send(saveUser);
+
+    try {
+        const saveUser = await user.save();
+        res.status(201).send(saveUser);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
+app.get('/users', async (req, res, next) => {
+    try {
+        const users = await User.find();
+        res.send(users);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+app.get('/users/:id', async (req, res, next) => {
+    const userID = req.params.id;
+
+    try {
+        const user = await User.findById(userID);
+        res.send(user);
+    } catch (error) {
+        res.status(500).send(error);
+    }
 });
 
 app.listen(port, () => {
