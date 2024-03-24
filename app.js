@@ -40,6 +40,31 @@ app.get('/users/:id', async (req, res, next) => {
     }
 });
 
+app.patch('/users/:id', async (req, res, next) => {
+    const userID = req.params.id;
+
+    try {
+        const user = await User.findByIdAndUpdate(userID, req.body, {
+            new: true,
+            runValidators: true,
+        });
+        res.send(user);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+app.delete('/users/:id', async (req, res, next) => {
+    const userID = req.params.id;
+
+    try {
+        const user = await User.findByIdAndDelete(userID);
+        res.send(user);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 app.listen(port, () => {
     console.log('Le serveur est lancé à http://localhost:' + port);
 });
