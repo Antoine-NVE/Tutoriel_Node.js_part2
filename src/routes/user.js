@@ -6,8 +6,8 @@ router.post('/users', async (req, res, next) => {
     const user = new User(req.body);
 
     try {
-        const saveUser = await user.save();
-        res.status(201).send(saveUser);
+        const authToken = await user.generateAuthTokenAndSaveUser();
+        res.status(201).send({ user, authToken });
     } catch (error) {
         res.status(400).send(error);
     }
@@ -16,9 +16,10 @@ router.post('/users', async (req, res, next) => {
 router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findUser(req.body.email, req.body.password);
-        res.send(user);
+        const authToken = await user.generateAuthTokenAndSaveUser();
+        res.send({ user, authToken });
     } catch (error) {
-        res.status(400).send();
+        res.status(400).send(error);
     }
 });
 
