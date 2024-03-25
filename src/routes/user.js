@@ -48,51 +48,27 @@ router.post('/users/logout/all', authentification, async (req, res) => {
     }
 });
 
-router.get('/users', authentification, async (req, res, next) => {
-    try {
-        const users = await User.find();
-        res.send(users);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-});
-
 router.get('/users/me', authentification, async (req, res, next) => {
     res.send(req.user);
 });
 
-router.get('/users/:id', async (req, res, next) => {
-    const userID = req.params.id;
-
-    try {
-        const user = await User.findById(userID);
-        res.send(user);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-});
-
-router.patch('/users/:id', async (req, res, next) => {
+router.patch('/users/me', authentification, async (req, res, next) => {
     const updatedInfo = Object.keys(req.body);
-    const userID = req.params.id;
 
     try {
-        const user = await User.findById(userID);
-        updatedInfo.forEach((update) => (user[update] = req.body[update]));
-        await user.save();
+        updatedInfo.forEach((update) => (req.user[update] = req.body[update]));
+        await req.user.save();
 
-        res.send(user);
+        res.send(req.user);
     } catch (error) {
         res.status(500).send(error);
     }
 });
 
-router.delete('/users/:id', async (req, res, next) => {
-    const userID = req.params.id;
-
+router.delete('/users/me', authentification, async (req, res, next) => {
     try {
-        const user = await User.findByIdAndDelete(userID);
-        res.send(user);
+        await req.user.remove();
+        res.send(req.user);
     } catch (error) {
         res.status(500).send(error);
     }
