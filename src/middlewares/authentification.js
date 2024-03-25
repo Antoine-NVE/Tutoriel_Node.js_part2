@@ -12,6 +12,7 @@ const authentification = async (req, res, next) => {
 
         if (!user) throw new Error();
 
+        req.authToken = authToken;
         req.user = user;
         next();
     } catch (error) {
